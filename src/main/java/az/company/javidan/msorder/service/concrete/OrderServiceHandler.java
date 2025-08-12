@@ -1,0 +1,35 @@
+package az.company.javidan.msorder.service.concrete;
+
+import az.company.javidan.msorder.exception.NotFoundException;
+import az.company.javidan.msorder.model.enums.ErrorMessage;
+import az.company.javidan.msorder.model.request.CreateOrderRequest;
+import az.company.javidan.msorder.model.response.OrderResponse;
+import az.company.javidan.msorder.repository.OrderRepository;
+import az.company.javidan.msorder.service.abstraction.OrderService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import static az.company.javidan.msorder.mapper.OrderMapper.ORDER_MAPPER;
+
+
+@Service
+@RequiredArgsConstructor
+public class OrderServiceHandler implements OrderService {
+
+    private final OrderRepository orderRepository;
+    @Override
+    public void createOrder(CreateOrderRequest createOrderRequest) {
+        var entity = ORDER_MAPPER.buildOrderEntity(createOrderRequest);
+        orderRepository.save(entity);
+    }
+
+    @Override
+    public OrderResponse getOrderById(Long id) {
+        return orderRepository.findById(id)
+                .map(ORDER_MAPPER :: buildOrderResponse)
+                .orElseThrow(() -> new NotFoundException(String.format
+                        (ErrorMessage.ORDER_NOT_FOUND
+                                .getMessage(),id
+                        )));
+    }
+}
