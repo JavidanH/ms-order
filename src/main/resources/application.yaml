@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: ms-product
+  datasource:
+    url: jdbc:postgresql://localhost:5432/order_db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+
+server:
+  port: 8081
