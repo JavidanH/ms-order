@@ -1,13 +1,17 @@
 package az.company.javidan.msorder.service.concrete;
 
+import az.company.javidan.msorder.client.ProductClient;
 import az.company.javidan.msorder.exception.NotFoundException;
+import az.company.javidan.msorder.model.client.reuqest.ReduceQuantityRequest;
 import az.company.javidan.msorder.model.enums.ErrorMessage;
+import az.company.javidan.msorder.model.enums.OrderStatus;
 import az.company.javidan.msorder.model.request.CreateOrderRequest;
 import az.company.javidan.msorder.model.response.OrderResponse;
 import az.company.javidan.msorder.repository.OrderRepository;
 import az.company.javidan.msorder.service.abstraction.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static az.company.javidan.msorder.mapper.OrderMapper.ORDER_MAPPER;
 
@@ -17,10 +21,25 @@ import static az.company.javidan.msorder.mapper.OrderMapper.ORDER_MAPPER;
 public class OrderServiceHandler implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final ProductClient productClient;
     @Override
+    @Transactional
     public void createOrder(CreateOrderRequest createOrderRequest) {
-        var entity = ORDER_MAPPER.buildOrderEntity(createOrderRequest);
-        orderRepository.save(entity);
+        var orderEntity = ORDER_MAPPER.buildOrderEntity(createOrderRequest);
+        var reduceQuantityRequest = new ReduceQuantityRequest(
+                createOrderRequest.getProductId(),
+                createOrderRequest.getQuantity()
+        );
+
+        try {
+            productClient.reduceQuantity(reduceQuantityRequest);
+            orderEntity.setStatus(OrderStatus.APPROVED);
+
+        } catch (Exception  e){
+            orderEntity.setStatus(OrderStatus.REJECTED);
+        }
+        orderRepository.save(orderEntity);
+
     }
 
     @Override
