@@ -41,6 +41,7 @@ public class OrderServiceHandler implements OrderService {
                 createOrderRequest.getQuantity()
         );
 
+        orderRepository.save(orderEntity);
         try {
             productClient.reduceQuantity(reduceQuantityRequest);
             orderEntity.setStatus(OrderStatus.APPROVED);
@@ -48,7 +49,6 @@ public class OrderServiceHandler implements OrderService {
         } catch (Exception  e){
             orderEntity.setStatus(OrderStatus.REJECTED);
         }
-        orderRepository.save(orderEntity);
 
     }
 

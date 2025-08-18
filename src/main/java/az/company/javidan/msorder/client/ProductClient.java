@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "ms-product",
-              url = "http://localhost:8080",
+              url = "http://localhost:8080/v1/products",
 configuration = CustomErrorDecoder.class)
 
 public interface ProductClient {
