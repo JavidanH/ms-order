@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 import static az.company.javidan.msorder.mapper.OrderMapper.ORDER_MAPPER;
 
 
@@ -26,6 +28,14 @@ public class OrderServiceHandler implements OrderService {
     @Transactional
     public void createOrder(CreateOrderRequest createOrderRequest) {
         var orderEntity = ORDER_MAPPER.buildOrderEntity(createOrderRequest);
+
+        var productResponse = productClient.getProductById(createOrderRequest.getProductId());
+
+        orderEntity.setAmount(productResponse
+                .getPrice()
+                   .multiply(
+                      BigDecimal.valueOf(createOrderRequest.getQuantity())));
+
         var reduceQuantityRequest = new ReduceQuantityRequest(
                 createOrderRequest.getProductId(),
                 createOrderRequest.getQuantity()
